@@ -5,9 +5,9 @@ python scraper.python
 
 #### Returns:
 List of dictionaries for each restaurant that matches query parameters
-(request parameters are hardcoded for now). Each dictionary contains metadata like
-restaurant name, address, etc. as well as inspection data average score,
-high score, and number of inpsections. Longitudes are wrong.
+(request parameters are hardcoded for now). Each dictionary contains metadata 
+(restaurant name, address, etc.) and inspection data (average score,
+high score, and number of inpsections). Longitudes are wrong.
 
 Ex:
 ```
