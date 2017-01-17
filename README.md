@@ -34,4 +34,9 @@ Writes geojson to my_map.json.
  ...
 ```
 
-Built with BeautifulSoup and Requests libraries.
+### Dependencies:
+
+ - BeautifulSoup4
+ - Requests
+ - argparse
+ - geocoder
