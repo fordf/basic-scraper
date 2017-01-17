@@ -1,23 +1,37 @@
 # King County Restaurant Inspection Data Scraper Script
 
-To run: python scraper.python
+#### To run:
+python scraper.python
 
-Returns: List of dictionaries for each restaurant that matches query parameters
-(request parameters are hardcoded for now). Each dictionary contains metadata like
-restaurant name, address, etc. as well as inspection data average score,
-high score, and number of inpsections. Longitudes are wrong.
+##### Options:
+-t (--test): Run script with saved html file.
+-n (--number): Specify number of results to be spit out. Default is 10.
+-s (--sort) (highscore, avgscore, numinspections): Specify a sorting method for results.
+-a (--all): Analyze and compare all restaurants. Use at own risk, it isn't optimized.
+            Can still work in conjunction with -n.
 
-Ex:
+#### Output:
+Prints list of geojson features for each restaurant that matches query parameters
+(request parameters are hardcoded for now). Each feature contains properties made up of
+metadata (restaurant name, address, etc.) and inspection data (average score,
+high score, and number of inpsections).
+
+Writes geojson to my_map.json.
+
+##### Ex:
 ```
-{'Address': '174 ROY ST, Seattle, WA 98109',
- 'Average Score': 8.75,
- 'Business Category': 'Seating 51-150 - Risk Category III',
- 'Business Name': 'STREAMLINE TAVERN',
- 'High Score': 10,
- 'Latitude': '47.6256182493',
- 'Longitude': '122.3529627079',
- 'Phone': '(206) 931-9883',
- 'Total Inspections': 4}
+...
+{'bbox': [-122.3481996, 47.6263575, -122.3477151, 47.6266153],
+  'geometry': {'coordinates': [-122.3479573, 47.6264864], 'type': 'Point'},
+  'properties': {'Address': '803 5th Ave N, Seattle, WA 98109, USA',
+                 'Average Score': 20.357142857142858,
+                 'Business Category': 'Seating 51-150 - Risk Category III',
+                 'Business Name': 'MARINEPOLIS SUSHILAND',
+                 'High Score': 100,
+                 'Phone': '',
+                 'Total Inspections': 28},
+  'type': 'Feature'},
+ ...
 ```
 
 Built with BeautifulSoup and Requests libraries.

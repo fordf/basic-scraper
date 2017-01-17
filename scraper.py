@@ -167,7 +167,10 @@ if __name__ == '__main__':
     parser.add_argument('-a', "--all", help="compare all", action='store_true')
     args = parser.parse_args()
     if not args.number:
-        args.number = 10
+        if args.all:
+            args.number = 1000
+        else:
+            args.number = 10
     total_result = {'type': 'FeatureCollection', 'features': []}
 
     for result in generate_results(args):
