@@ -1,6 +1,7 @@
 """Scrape health data."""
 import requests
 from bs4 import BeautifulSoup
+import geocoder
 
 
 URL = 'http://info.kingcounty.gov/health/ehs/foodsafety/inspections/Results.aspx'
@@ -33,6 +34,7 @@ It will raise an error if there is a problem with the response'''
 
 def get_inspection_page(**queries):
     """Query king county health inspection data and return html content."""
+    print('Requesting inspection page...')
     params = SEARCH_PARAMS.copy()
     for key, val in queries.items():
         if key in params:
@@ -46,6 +48,7 @@ def get_inspection_page(**queries):
 
 def load_inspection_page(**queries):
     '''Return stored inspection data html.'''
+    print('Loading inspection page...')
     with open('./inspection_page.html') as page:
         f = page.read()
     return f.encode(), 'utf-8'
@@ -53,6 +56,7 @@ def load_inspection_page(**queries):
 
 def parse_source(r_body):
     '''Soupify html content.'''
+    print('Soupifying...')
     return BeautifulSoup(r_body[0], 'html5lib', from_encoding=r_body[1])
 
 
@@ -119,17 +123,67 @@ def extract_score_data(listing):
     }
 
 
-if __name__ == '__main__':
-    import sys
-    from pprint import pprint
-    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+def generate_results(args):
+    if args.test:
         res = load_inspection_page()
     else:
         res = get_inspection_page(Zip_Code='98109')
     soup = parse_source(res)
     listings = extract_data_listings(soup)
-    for listing in listings:
+    print('Extracting data...')
+    if args.all:
+        args.number = len(listings)
+    for listing in listings[:args.number]:
         metadata = extract_restaurant_metadata(listing)
         score_data = extract_score_data(listing)
         metadata.update(score_data)
-        pprint(metadata)
+        yield metadata
+
+
+def get_geojson(search):
+    if search['Address']:
+        response = geocoder.google(search['Address'])
+        try:
+            search['Address'] = response.json['address']
+        except KeyError:
+            pass
+        del search['Longitude']
+        del search['Latitude']
+        geojson = response.geojson
+        geojson['properties'] = search
+        return geojson
+    return None
+
+
+if __name__ == '__main__':
+    from pprint import pprint
+    import json
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', "--test", help="use written file data", action='store_true')
+    parser.add_argument('-s', "--sort", help="specify sort method")
+    parser.add_argument('-n', "--number", help="specify number of results shown")
+    parser.add_argument('-r', "--reverse", help="sort by lowest scores", action='store_true')
+    parser.add_argument('-a', "--all", help="compare all", action='store_true')
+    args = parser.parse_args()
+    if not args.number:
+        args.number = 10
+    total_result = {'type': 'FeatureCollection', 'features': []}
+
+    for result in generate_results(args):
+        geojson = get_geojson(result)
+        total_result['features'].append(geojson)
+    if args.sort:
+        sorts = {
+            'highscore': 'High Score',
+            'avgscore': 'Average Score',
+            'numinspections': 'Total Inspections',
+        }
+        total_result['features'] = sorted(total_result['features'],
+                                          key=lambda f: f['properties'][sorts[args.sort]],
+                                          reverse=args.reverse)
+    if args.all:
+        total_result['features'] = total_result['features'][:args.number]
+    pprint(total_result['features'])
+    with open('my_map.json', 'w') as fh:
+        json.dump(total_result, fh)
