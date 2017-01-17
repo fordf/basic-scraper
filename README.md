@@ -1,16 +1,16 @@
 # King County Restaurant Inspection Data Scraper Script
 
-#### To run:
+### To run:
 python scraper.python
 
-##### Options:
--t (--test): Run script with saved html file.
--n (--number): Specify number of results to be spit out. Default is 10.
--s (--sort) (highscore, avgscore, numinspections): Specify a sorting method for results.
--a (--all): Analyze and compare all restaurants. Use at own risk, it isn't optimized.
+#### Options:
+- -t (--test): Run script with saved html file.
+- -n (--number): Specify number of results to be spit out. Default is 10.
+- -s (--sort) (highscore, avgscore, numinspections): Specify a sorting method for results.
+- -a (--all): Analyze and compare all restaurants. Use at own risk, it isn't optimized.
             Can still work in conjunction with -n.
 
-#### Output:
+### Output:
 Prints list of geojson features for each restaurant that matches query parameters
 (request parameters are hardcoded for now). Each feature contains properties made up of
 metadata (restaurant name, address, etc.) and inspection data (average score,
@@ -18,7 +18,7 @@ high score, and number of inpsections).
 
 Writes geojson to my_map.json.
 
-##### Ex:
+#### Ex:
 ```
 ...
 {'bbox': [-122.3481996, 47.6263575, -122.3477151, 47.6266153],
